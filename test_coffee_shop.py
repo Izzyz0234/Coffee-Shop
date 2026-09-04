@@ -1,6 +1,6 @@
 import unittest
 from coffee_shop_refactored import MenuItem, Order, Customer, LoyaltyProgram
-from coffee_shop_exceptions import InvalidCustomizationError, InsufficientPointsError
+from coffee_shop_exceptions import InvalidItemError, InsufficientPointsError, InvalidCustomizationError
 
 class TestCoffeeShop(unittest.TestCase):
 

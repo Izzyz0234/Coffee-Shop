@@ -2,10 +2,11 @@ from coffee_shop_exceptions import InvalidCustomizationError, InsufficientPoints
 
 class MenuItem:
     SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
-    DRINK_TYPES = {'late': 4.50, 'cappuccino': 4.25, 'espresso': 3.50, 'americano': 3.75, 'mocha': 5.00}
+    DRINK_TYPES = {'Latte': 4.50, 'Cappuccino': 4.25, 'Espresso': 3.50, 'Americano': 3.75, 'Mocha': 5.00}
 
-    def __init__(self, name, available_sizes):
+    def __init__(self, name, base_price, available_sizes):
         self.name = name
+        self.base_price = base_price
         self.available_sizes = available_sizes
 
     def calculate_price(self, size):
@@ -26,7 +27,7 @@ class MenuItem:
                 f"Available: {', '.join(self.available_sizes)}"
             )
 
-        return self.DRINK_TYPES[self.name] * self.SIZE_MULTIPLIERS[size]
+        return self.base_price * self.SIZE_MULTIPLIERS[size]
 
 class Order:
     def __init__(self):
@@ -46,7 +47,7 @@ class Order:
         """Calculate total price of the order."""
         return sum(price for _, _, price in self.items)
 
-class customer:
+class Customer:
     def __init__(self, name, member=False):
         self.name = name
         self.member = member
@@ -76,14 +77,17 @@ class LoyaltyProgram:
 
 # Extending MenuItem (composition approach)
 class Beverage(MenuItem):
-    def __init__(self, name, available_sizes):
-        super().__init__(name, available_sizes)
+    def __init__(self, name, base_price, available_sizes):
+        super().__init__(name, base_price, available_sizes)
 
 # Usage - no change to Order class needed
 order = Order()
-order.add_item(Beverage("late", ['small', 'medium', 'large']), 'small')
+order.add_item(Beverage("Latte", 4.50, ['small', 'medium', 'large']), 'large')
 
-print(order.total())  # Should print the total price for the order
+# print everything in the order
+for item_name, size, price in order.items:
+    print(f"{item_name.title()} ({size}): ${price:.2f}")
+
 # 1. Class Design (30%)
 # Create at least these classes with clear responsibilities:
 # MenuItem - Represents one menu item with pricing
