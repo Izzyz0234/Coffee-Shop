@@ -135,6 +135,15 @@ class LoyaltyProgram:
             )
         customer.loyalty_points -= points_to_redeem
 
+class StaffDrink:
+    def __init__(self, menu_item, size):
+        self.menu_item = menu_item
+        self.size = size
+        self.price = 0.0  # Staff drinks are free
+
+    def get_receipt(self):
+        """Generate receipt for staff drink."""
+        return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
 
 # Usage - no change to Order class needed
 # order = Order()
