@@ -34,7 +34,6 @@ class MenuItem:
             raise InvalidCustomizationError(f"One or more sizes are invalid. Available sizes: {', '.join(self.SIZE_MULTIPLIERS.keys())}")
         if not all(milk in self.MILK_TYPES for milk in self.available_milk_types):
             raise InvalidCustomizationError(f"One or more milk types are invalid. Available milk types: {', '.join(self.MILK_TYPES.keys())}")
-        
 
     def calculate_drink_price(self, size):
         """Calculate price based on size.
@@ -56,8 +55,6 @@ class MenuItem:
         self.new_price = self.base_price * self.SIZE_MULTIPLIERS[size]
         return self.new_price
 
-
-
     def calculate_milk_price(self, milk_type):
         """Calculate price based on milk type.
 
@@ -77,7 +74,7 @@ class MenuItem:
             )
         
         return self.new_price + self.MILK_TYPES[milk_type]
-
+    
 
 class Order(MenuItem):
     def __init__(self, name, base_price, available_sizes, available_milk_types):
@@ -135,10 +132,10 @@ class Order(MenuItem):
         self.items[-1] = (last_item[0], last_item[1], updated_price)
         return self.calculate_milk_price(milk_type)
 
-
     def total(self):
         """Calculate total price of the order."""
         return sum(price for _, _, price in self.items)
+
 
 class Customer:
     """Represents a customer with membership and loyalty points.
@@ -280,61 +277,11 @@ class StaffDrink:
             )
 
 
-def get_receipt(self):
-    """Generate receipt for staff drink.
-    Returns:
-        Receipt string
-    """
-    
-    return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
+    def get_receipt(self):
+        """Generate receipt for staff drink.
+        Returns:
+            Receipt string
+        """
+        
+        return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
 
-def main_menu():
-    """Main program loop."""
-while True:
-    print("\n======= Coffee Shop POS =======")
-    print("1. Take Order")
-    print("2. Staff Order (Free)")
-    print("3. Daily Report")
-    print("4. View Loyalty Accounts")
-    print("5. Reset Daily Counters")
-    print("6. Exit")
-    print("===============================")
-    
-    choice = input("Choice: ").strip()
-    
-    if choice == '1':
-        take_order()            
-    elif choice == '2':
-        staff_order()
-    elif choice == '3':
-        daily_report()
-    elif choice == '4':
-        view_loyalty()
-    elif choice == '5':
-        reset_day()
-    elif choice == '6':
-        print("Goodbye!")
-        break
-    else:
-        print("Error: Invalid choice")
-
-def take_order():
-    """Take a regular order from a customer."""
-    # Implementation for taking a regular order
-    pass
-def staff_order():
-    """Take a staff order."""
-    # Implementation for taking a staff order
-    pass
-def daily_report():
-    """Generate daily report."""
-    # Implementation for generating daily report
-    pass
-def view_loyalty():
-    """View loyalty accounts."""
-    # Implementation for viewing loyalty accounts
-    pass
-def reset_day():
-    """Reset daily counters."""
-    # Implementation for resetting daily counters
-    pass
