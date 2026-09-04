@@ -94,6 +94,20 @@ class TestCoffeeShop(unittest.TestCase):
         print(receipt)
         self.assertIn("Staff Drink", receipt)
 
+
+    def test_customer_membership_status(self):
+        """Test customer membership status."""
+        print(f"Customer: {self.customer.name}, membership status: {self.customer.member}, Staff status: {self.customer.is_staff}")
+        self.assertTrue(self.customer.member)
+        self.assertFalse(self.customer.is_staff)
+        
+
+    def test_staff_membership_status(self):
+        """Test staff membership status."""
+        print(f"Staff: {self.staffMember.name}, membership status: {self.staffMember.member}, Staff status: {self.staffMember.is_staff}")
+        self.assertTrue(self.staffMember.member)
+        self.assertTrue(self.staffMember.is_staff)
+
 # print
 
 if __name__ == '__main__':

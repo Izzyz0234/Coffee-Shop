@@ -45,8 +45,6 @@ class InvalidCustomerStaffStatusError(CustomerError):
     pass
 
 
-
-
 class InvalidSpentError(PaymentError):
     """Raised when amount is invalid (e.g., negative)."""
     pass

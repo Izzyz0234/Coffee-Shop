@@ -1,5 +1,8 @@
 from coffee_shop_exceptions import InvalidCustomerMembershipError, InvalidCustomerStaffStatusError, InvalidSpentError, InvalidCustomer, InvalidDiscountError, InvalidItemError, InvalidCustomizationError, InsufficientPointsError
 
+# Created: 04/09/2026
+# By: Isabella
+
 class MenuItem:
     """Represents a menu item with pricing and customization options.
     Args:
@@ -77,11 +80,9 @@ class MenuItem:
 
 
 class Order(MenuItem):
-    def __init__(self):
+    def __init__(self, name, base_price, available_sizes, available_milk_types):
+        super().__init__(name, base_price, available_sizes, available_milk_types)
         self.items = []
-
-    # def __init__(self, name, base_price, available_sizes, available_milk_types):
-    #     super().__init__(name, base_price, available_sizes, available_milk_types)
 
     def add_item(self, menu_item, size):
         """Add item to order.
@@ -101,7 +102,7 @@ class Order(MenuItem):
 
         price = menu_item.calculate_drink_price(size)
         self.items.append((menu_item.name, size, price))
-
+        return self.calculate_drink_price(size)
 
 
     def add_milk(self, menu_item, milk_type):
@@ -132,6 +133,7 @@ class Order(MenuItem):
         last_item = self.items[-1]
         updated_price = last_item[2] + milk_price
         self.items[-1] = (last_item[0], last_item[1], updated_price)
+        return self.calculate_milk_price(milk_type)
 
 
     def total(self):
@@ -278,10 +280,61 @@ class StaffDrink:
             )
 
 
-    def get_receipt(self):
-        """Generate receipt for staff drink.
-        Returns:
-            Receipt string
-        """
-        
-        return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
+def get_receipt(self):
+    """Generate receipt for staff drink.
+    Returns:
+        Receipt string
+    """
+    
+    return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
+
+def main_menu():
+    """Main program loop."""
+while True:
+    print("\n======= Coffee Shop POS =======")
+    print("1. Take Order")
+    print("2. Staff Order (Free)")
+    print("3. Daily Report")
+    print("4. View Loyalty Accounts")
+    print("5. Reset Daily Counters")
+    print("6. Exit")
+    print("===============================")
+    
+    choice = input("Choice: ").strip()
+    
+    if choice == '1':
+        take_order()            
+    elif choice == '2':
+        staff_order()
+    elif choice == '3':
+        daily_report()
+    elif choice == '4':
+        view_loyalty()
+    elif choice == '5':
+        reset_day()
+    elif choice == '6':
+        print("Goodbye!")
+        break
+    else:
+        print("Error: Invalid choice")
+
+def take_order():
+    """Take a regular order from a customer."""
+    # Implementation for taking a regular order
+    pass
+def staff_order():
+    """Take a staff order."""
+    # Implementation for taking a staff order
+    pass
+def daily_report():
+    """Generate daily report."""
+    # Implementation for generating daily report
+    pass
+def view_loyalty():
+    """View loyalty accounts."""
+    # Implementation for viewing loyalty accounts
+    pass
+def reset_day():
+    """Reset daily counters."""
+    # Implementation for resetting daily counters
+    pass
