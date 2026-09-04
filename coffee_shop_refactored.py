@@ -12,6 +12,16 @@ class MenuItem:
         self.available_milk_types = available_milk_types
         self.new_price = 0
 
+        if self.name not in self.DRINK_TYPES:
+            raise InvalidItemError(f"Menu item '{self.name}' does not exist. Available items: {', '.join(self.DRINK_TYPES.keys())}")
+        if self.base_price != self.DRINK_TYPES[self.name]:
+            raise InvalidItemError(f"Base price for '{self.name}' is incorrect. Expected: {self.DRINK_TYPES[self.name]}, Got: {self.base_price}")
+        if not all(size in self.SIZE_MULTIPLIERS for size in self.available_sizes):
+            raise InvalidCustomizationError(f"One or more sizes are invalid. Available sizes: {', '.join(self.SIZE_MULTIPLIERS.keys())}")
+        if not all(milk in self.MILK_TYPES for milk in self.available_milk_types):
+            raise InvalidCustomizationError(f"One or more milk types are invalid. Available milk types: {', '.join(self.MILK_TYPES.keys())}")
+        
+
     def calculate_drink_price(self, size):
         """Calculate price based on size.
 
@@ -66,14 +76,15 @@ class Order:
             menu_item: MenuItem instance
             size: Size of the drink
         """
-        price = menu_item.calculate_drink_price(size)
-        self.items.append((menu_item.name, size, price))
-
         if size not in self.available_sizes:
             raise InvalidCustomizationError(
                 f"Size '{size}' not available for {self.name}. "
                 f"Available: {', '.join(self.available_sizes)}"
             )
+
+        price = menu_item.calculate_drink_price(size)
+        self.items.append((menu_item.name, size, price))
+
 
 
     def add_milk(self, menu_item, milk_type):
@@ -83,14 +94,6 @@ class Order:
             menu_item: MenuItem instance
             milk_type: Type of milk
         """
-        if not self.items:
-            raise ValueError("No items in order to customize.")
-
-        milk_price = menu_item.calculate_milk_price(milk_type)
-        last_item = self.items[-1]
-        updated_price = last_item[2] + milk_price
-        self.items[-1] = (last_item[0], last_item[1], updated_price)
-
         if menu_item.name not in menu_item.DRINK_TYPES:
             raise InvalidItemError(
                 f"Menu item '{menu_item.name}' does not exist."
@@ -102,21 +105,29 @@ class Order:
                 f"Available: {', '.join(self.available_milk_types)}"
             )
 
+        if not self.items:
+            raise ValueError("No items in order to customize.")
+
+        milk_price = menu_item.calculate_milk_price(milk_type)
+        last_item = self.items[-1]
+        updated_price = last_item[2] + milk_price
+        self.items[-1] = (last_item[0], last_item[1], updated_price)
+
+
     def total(self):
         """Calculate total price of the order."""
         return sum(price for _, _, price in self.items)
 
 class Customer:
-    def __init__(self, name, member=False):
+    def __init__(self, name, member=False, loyalty_points=0):
         self.name = name
         self.member = member
-        self.loyalty_points = 0
+        self.loyalty_points = loyalty_points
 
 class StaffMember(Customer):
     def __init__(self, name):
-        super().__init__(name, member=True)
+        super().__init__(name, member=True, loyalty_points=0)
         self.is_staff = True
-        self.loyalty_points = 0
 
     def apply_discount(self, total):
         """Apply staff discount to total price.
@@ -141,10 +152,11 @@ class LoyaltyProgram:
         """Earn loyalty points based on amount spent."""
 
         if not isinstance(customer, Customer):
-            raise InvalidCustomer("Invalid customer instance.")
+            raise InvalidCustomer("Customer does not exist.")
         
         if amount_spent < 0:
             raise InvalidSpentError("Amount spent cannot be negative.")
+        
         points_earned = int(amount_spent * self.POINTS_PER_DOLLAR)
         customer.loyalty_points += points_earned
 
@@ -154,11 +166,15 @@ class LoyaltyProgram:
         Raises:
             InsufficientPointsError: If customer doesn't have enough points
         """
+        if not isinstance(customer, Customer):
+            raise InvalidCustomer("Customer does not exist.")
+
         if customer.loyalty_points < points_to_redeem:
             raise InsufficientPointsError(
                 f"Customer {customer.name} has insufficient points. "
                 f"Available: {customer.loyalty_points}, Required: {points_to_redeem}"
             )
+        
         customer.loyalty_points -= points_to_redeem
 
 class StaffDrink:
@@ -166,9 +182,7 @@ class StaffDrink:
         self.menu_item = menu_item
         self.size = size
         self.price = 0.0  # Staff drinks are free
-
-    def get_receipt(self):
-        """Generate receipt for staff drink."""
+        
         if self.size not in self.menu_item.available_sizes:
             raise InvalidCustomizationError(
                 f"Size '{self.size}' not available for {self.menu_item.name}. "
@@ -179,6 +193,10 @@ class StaffDrink:
             raise InvalidItemError(
                 f"Menu item '{self.menu_item.name}' does not exist."
             )
+
+
+    def get_receipt(self):
+        """Generate receipt for staff drink."""
         
         return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
 
