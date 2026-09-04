@@ -27,7 +27,7 @@ class InvalidDiscountError(PaymentError):
     pass
 
 
-
+# Custom exception classes
 class CustomerError(CoffeeShopError):
     """Base exception for customer-related errors."""
     pass

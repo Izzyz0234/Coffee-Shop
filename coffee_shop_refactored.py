@@ -139,8 +139,8 @@ class Customer:
             )
 
 class StaffMember(Customer):
-    def __init__(self, name, is_staff=True):
-        super().__init__(name, member=True, loyalty_points=0, is_staff=is_staff)
+    def __init__(self, name, member=True, is_staff=True):
+        super().__init__(name, member=member, loyalty_points=0, is_staff=is_staff)
 
     def apply_discount(self, total):
         """Apply staff discount to total price.
@@ -155,7 +155,7 @@ class StaffMember(Customer):
             raise InvalidCustomerStaffStatusError(
                 f"Customer '{self.name}' is not a staff member."
             )
-        
+
         if total < 0:
             raise InvalidDiscountError("Total cannot be negative.")
 
@@ -184,6 +184,11 @@ class LoyaltyProgram:
         Raises:
             InsufficientPointsError: If customer doesn't have enough points
         """
+        if StaffMember(customer.name, member=customer.member, is_staff=customer.is_staff).is_staff == True:
+            raise InvalidCustomerStaffStatusError(
+                f"Staff member '{customer.name}' cannot redeem points."
+            )
+
         if not isinstance(customer, Customer):
             raise InvalidCustomer("Customer does not exist.")
 
