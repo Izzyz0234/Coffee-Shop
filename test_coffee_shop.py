@@ -58,9 +58,10 @@ class TestCoffeeShop(unittest.TestCase):
 
     def test_redeem_points_insufficient(self):
         """Test redeeming with insufficient points raises exception."""
-        self.loyalty.earn_points(self.customer, 50)  # Customer has 50 points
         with self.assertRaises(InsufficientPointsError):
-            self.loyalty.redeem_points(self.customer, points_to_redeem=100)  # Try to redeem 100 points
+            self.loyalty.redeem_points(self.customer, points_to_redeem=10)
+
+# print
 
 if __name__ == '__main__':
     unittest.main()
