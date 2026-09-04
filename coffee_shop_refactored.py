@@ -1,6 +1,17 @@
 from coffee_shop_exceptions import InvalidCustomerMembershipError, InvalidCustomerStaffStatusError, InvalidSpentError, InvalidCustomer, InvalidDiscountError, InvalidItemError, InvalidCustomizationError, InsufficientPointsError
 
 class MenuItem:
+    """Represents a menu item with pricing and customization options.
+    Args:
+        name (str): The name of the menu item.
+        base_price (float): The base price of the menu item.
+        available_sizes (list): A list of available sizes.
+        available_milk_types (list): A list of available milk types.
+    Raises:
+        InvalidItemError: If the menu item does not exist or base price is incorrect.
+        InvalidCustomizationError: If the size or milk type is not available.
+    """
+
     SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
     DRINK_TYPES = {'Latte': 4.50, 'Cappuccino': 4.25, 'Espresso': 3.50, 'Americano': 3.75, 'Mocha': 5.00}
     MILK_TYPES = {'Whole': 0.0, 'Skim': 0.0, 'Oat': 0.50, 'Almond': 0.80}
@@ -78,6 +89,9 @@ class Order(MenuItem):
         Args:
             menu_item: MenuItem instance
             size: Size of the drink
+        Raises:
+            InvalidItemError: If menu item does not exist
+            InvalidCustomizationError: If size not available
         """
         if size not in self.available_sizes:
             raise InvalidCustomizationError(
@@ -96,6 +110,9 @@ class Order(MenuItem):
         Args:
             menu_item: MenuItem instance
             milk_type: Type of milk
+        Raises:
+            InvalidItemError: If menu item does not exist
+            InvalidCustomizationError: If milk type not available
         """
         if menu_item.name not in menu_item.DRINK_TYPES:
             raise InvalidItemError(
@@ -122,6 +139,18 @@ class Order(MenuItem):
         return sum(price for _, _, price in self.items)
 
 class Customer:
+    """Represents a customer with membership and loyalty points.
+    
+    Args:
+        name: Customer's name
+        member: Whether the customer is a member
+        loyalty_points: Number of loyalty points the customer has
+        is_staff: Whether the customer is a staff member
+    Raises:
+        InvalidCustomerMembershipError: If membership status is invalid
+        InvalidCustomerStaffStatusError: If staff status is invalid
+    """
+
     def __init__(self, name, member=False, loyalty_points=0, is_staff=False):
         self.name = name
         self.member = member
@@ -139,6 +168,15 @@ class Customer:
             )
 
 class StaffMember(Customer):
+    """Represents a staff member with special privileges.
+    
+    Args:
+        name: Staff member's name
+        member: Whether the staff member is a member
+        is_staff: Whether the staff member is a staff member
+    Raises:
+            InvalidCustomerStaffStatusError: If staff status is invalid
+    """
     def __init__(self, name, member=True, is_staff=True):
         super().__init__(name, member=member, loyalty_points=0, is_staff=is_staff)
 
@@ -147,9 +185,10 @@ class StaffMember(Customer):
 
         Args:
             total: Total price before discount
-
         Returns:
             Total price after discount
+        Raises:
+            InvalidCustomerStaffStatusError: If customer is not a staff member
         """
         if self.is_staff == False:
             raise InvalidCustomerStaffStatusError(
@@ -163,6 +202,14 @@ class StaffMember(Customer):
 
 
 class LoyaltyProgram:
+    """Manages loyalty points for customers.
+    Args:
+        POINTS_PER_DOLLAR: Points earned per dollar spent
+        FREE_DRINK_POINTS: Points required for a free drink
+    Raises:
+            InvalidCustomer: If customer does not exist
+            InvalidSpentError: If amount spent is invalid
+    """
     POINTS_PER_DOLLAR = 1
     FREE_DRINK_POINTS = 100
 
@@ -183,6 +230,10 @@ class LoyaltyProgram:
 
         Raises:
             InsufficientPointsError: If customer doesn't have enough points
+            InvalidCustomerStaffStatusError: If customer is a staff member
+        Args:
+            customer: Customer instance
+            points_to_redeem: Number of points to redeem
         """
         if StaffMember(customer.name, member=customer.member, is_staff=customer.is_staff).is_staff == True:
             raise InvalidCustomerStaffStatusError(
@@ -200,7 +251,16 @@ class LoyaltyProgram:
         
         customer.loyalty_points -= points_to_redeem
 
+
 class StaffDrink:
+    """Represents a free drink for staff members.
+    Args:
+        menu_item: MenuItem instance
+        size: Size of the drink
+    Raises:
+        InvalidCustomizationError: If size not available
+        InvalidItemError: If menu item does not exist
+    """
     def __init__(self, menu_item, size):
         self.menu_item = menu_item
         self.size = size
@@ -219,47 +279,9 @@ class StaffDrink:
 
 
     def get_receipt(self):
-        """Generate receipt for staff drink."""
+        """Generate receipt for staff drink.
+        Returns:
+            Receipt string
+        """
         
         return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
-
-# Usage - no change to Order class needed
-# order = Order()
-# order.add_item("Latte", 'large')
-
-# # print everything in the order
-# for item_name, size, price in order.items:
-#     print(f"{item_name.title()} ({size}): ${price:.2f}")
-
-# 1. Class Design (30%)
-# Create at least these classes with clear responsibilities:
-# MenuItem - Represents one menu item with pricing
-# Order - Manages collection of items, calculates totals
-# Customer - Holds customer information
-# LoyaltyProgram - Manages points earning and redemption
-# Custom exception classes (minimum 3)
-
-# 2. Separation of Concerns (25%)
-# Business logic separated from I/O
-# Pricing logic centralized (not scattered)
-# Each class has single, clear responsibility
-# No global variables (except perhaps constants)
-
-# 3. Composition & Inheritance (20%)
-# Use composition where appropriate (Order HAS-A MenuItem)
-# Consider inheritance if types emerge (optional, but think about it)
-# Demonstrate understanding of IS-A vs HAS-A
-
-# 4. Error Handling (15%)
-# Use custom exceptions (not print statements for errors)
-# Appropriate exception messages with context
-# Demonstrate exception hierarchy
-
-# 5. Google Docstrings (10%)
-# All classes documented
-# All public methods documented
-# Type hints on method signatures
-# Deliverables¶
-# coffee_shop_refactored.py - Your OOP solution
-# coffee_shop_exceptions.py - Custom exception hierarchy
-# test_coffee_shop.py - Unit tests (provided template, you complete)

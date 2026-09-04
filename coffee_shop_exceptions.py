@@ -31,6 +31,10 @@ class InvalidDiscountError(PaymentError):
 class CustomerError(CoffeeShopError):
     """Base exception for customer-related errors."""
     pass
+
+class InvalidCustomer(CustomerError):
+    """Raised when customer doesnt exist."""
+    pass
     
 class InvalidCustomerMembershipError(CustomerError):
     """Raised when customer membership status is invalid."""
@@ -40,11 +44,12 @@ class InvalidCustomerStaffStatusError(CustomerError):
     """Raised when customer staff status is invalid."""
     pass
 
+
+
+
 class InvalidSpentError(PaymentError):
     """Raised when amount is invalid (e.g., negative)."""
     pass
 
-class InvalidCustomer(CustomerError):
-    """Raised when customer information is invalid."""
-    pass
+
 
