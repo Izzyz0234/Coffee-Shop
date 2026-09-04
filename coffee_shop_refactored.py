@@ -1,4 +1,4 @@
-from coffee_shop_exceptions import InvalidSpentError, InvalidCustomer, InvalidDiscountError, InvalidItemError, InvalidCustomizationError, InsufficientPointsError
+from coffee_shop_exceptions import InvalidCustomerMembershipError, InvalidCustomerStaffStatusError, InvalidSpentError, InvalidCustomer, InvalidDiscountError, InvalidItemError, InvalidCustomizationError, InsufficientPointsError
 
 class MenuItem:
     SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
@@ -65,9 +65,12 @@ class MenuItem:
         return self.new_price + self.MILK_TYPES[milk_type]
 
 
-class Order:
+class Order(MenuItem):
     def __init__(self):
         self.items = []
+
+    # def __init__(self, name, base_price, available_sizes, available_milk_types):
+    #     super().__init__(name, base_price, available_sizes, available_milk_types)
 
     def add_item(self, menu_item, size):
         """Add item to order.
@@ -119,15 +122,25 @@ class Order:
         return sum(price for _, _, price in self.items)
 
 class Customer:
-    def __init__(self, name, member=False, loyalty_points=0):
+    def __init__(self, name, member=False, loyalty_points=0, is_staff=False):
         self.name = name
         self.member = member
         self.loyalty_points = loyalty_points
+        self.is_staff = is_staff
+
+        if is_staff not in [True, False]:
+            raise InvalidCustomerStaffStatusError(
+                f"Customer '{self.name}' has invalid staff status."
+            )
+
+        if member not in [True, False]:
+            raise InvalidCustomerMembershipError(
+                f"Customer '{self.name}' has invalid membership status."
+            )
 
 class StaffMember(Customer):
-    def __init__(self, name):
-        super().__init__(name, member=True, loyalty_points=0)
-        self.is_staff = True
+    def __init__(self, name, is_staff=True):
+        super().__init__(name, member=True, loyalty_points=0, is_staff=is_staff)
 
     def apply_discount(self, total):
         """Apply staff discount to total price.
@@ -138,6 +151,11 @@ class StaffMember(Customer):
         Returns:
             Total price after discount
         """
+        if self.is_staff == False:
+            raise InvalidCustomerStaffStatusError(
+                f"Customer '{self.name}' is not a staff member."
+            )
+        
         if total < 0:
             raise InvalidDiscountError("Total cannot be negative.")
 
@@ -182,7 +200,7 @@ class StaffDrink:
         self.menu_item = menu_item
         self.size = size
         self.price = 0.0  # Staff drinks are free
-        
+
         if self.size not in self.menu_item.available_sizes:
             raise InvalidCustomizationError(
                 f"Size '{self.size}' not available for {self.menu_item.name}. "

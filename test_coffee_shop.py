@@ -1,6 +1,6 @@
 import unittest
-from coffee_shop_refactored import MenuItem, Order, Customer, LoyaltyProgram, StaffDrink, StaffMember
-from coffee_shop_exceptions import InvalidDiscountError, InsufficientPointsError, InvalidCustomizationError, InvalidItemError, InvalidCustomer, InvalidCustomizationError
+from coffee_shop_refactored import MenuItem, Customer, LoyaltyProgram, StaffDrink, StaffMember
+from coffee_shop_exceptions import InsufficientPointsError, InvalidCustomizationError, InvalidCustomizationError
 
 class TestCoffeeShop(unittest.TestCase):
 
@@ -12,8 +12,8 @@ class TestCoffeeShop(unittest.TestCase):
         self.mocha = MenuItem("Mocha", 5.00, ['small', 'medium', 'large'], ['Whole', 'Skim', 'Oat', 'Almond'])
 
         #Customers and Staff
-        self.customer = Customer("Alice", member=True)
-        self.staffMember = StaffMember("Bob")
+        self.customer = Customer("Alice", member=True, is_staff=False)
+        self.staffMember = StaffMember("Bob", is_staff=True)
         self.staffDrink = StaffDrink(self.latte, 'medium')
 
         # Loyalty Program
@@ -58,7 +58,7 @@ class TestCoffeeShop(unittest.TestCase):
         """Test member discount is 10%."""
         discount_item = self.latte.calculate_drink_price('medium')  # $4.50 * 1.3
         discount_item = self.latte.calculate_milk_price('Oat')  # +
-        discounted = StaffMember.apply_discount(int(discount_item), int(discount_item))  # 10% discount
+        discounted = self.staffMember.apply_discount(int(discount_item))  # 10% discount
         expected_discounted = int(discount_item) * 0.90
         print(f"Discounted price: {discounted}, Expected: {expected_discounted}")
         self.assertEqual(discounted, expected_discounted) 
