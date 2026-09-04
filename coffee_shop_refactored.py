@@ -69,6 +69,13 @@ class Order:
         price = menu_item.calculate_drink_price(size)
         self.items.append((menu_item.name, size, price))
 
+        if size not in self.available_sizes:
+            raise InvalidCustomizationError(
+                f"Size '{size}' not available for {self.name}. "
+                f"Available: {', '.join(self.available_sizes)}"
+            )
+
+
     def add_milk(self, menu_item, milk_type):
         """Add milk customization to the last item in the order.
 
@@ -83,6 +90,12 @@ class Order:
         last_item = self.items[-1]
         updated_price = last_item[2] + milk_price
         self.items[-1] = (last_item[0], last_item[1], updated_price)
+
+        if milk_type not in self.available_milk_types:
+            raise InvalidCustomizationError(
+                f"Milk type '{milk_type}' not available for {self.name}. "
+                f"Available: {', '.join(self.available_milk_types)}"
+            )
 
     def total(self):
         """Calculate total price of the order."""
@@ -110,6 +123,8 @@ class StaffMember(Customer):
             Total price after discount
         """
         return total * (1 - 0.10) 
+
+        
 
 class LoyaltyProgram:
     POINTS_PER_DOLLAR = 1

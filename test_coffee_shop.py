@@ -6,12 +6,17 @@ class TestCoffeeShop(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
+        # Drinks
         self.latte = MenuItem("Latte", 4.50, ['small', 'medium', 'large'], ['Whole', 'Skim', 'Oat', 'Almond'])
         self.latteMedium = MenuItem("Latte", 4.50, ['small', 'medium', 'large'], ['Whole', 'Skim', 'Oat', 'Almond'])
         self.mocha = MenuItem("Mocha", 5.00, ['small', 'medium', 'large'], ['Whole', 'Skim', 'Oat', 'Almond'])
+
+        #Customers and Staff
         self.customer = Customer("Alice", member=True)
         self.staffMember = StaffMember("Bob")
         self.staffDrink = StaffDrink(self.latte, 'medium')
+
+        # Loyalty Program
         self.loyalty = LoyaltyProgram()
 
     def test_menu_item_pricing_small(self):
@@ -30,9 +35,9 @@ class TestCoffeeShop(unittest.TestCase):
 
     def test_menu_item_milk_oat(self):
         """Test MenuItem calculates price with oat milk correctly."""
-        oat_milk_surcharge = self.latteMedium.calculate_drink_price('small')
+        oat_milk_surcharge = self.latteMedium.calculate_drink_price('medium')
         oat_milk_surcharge = self.latteMedium.calculate_milk_price('Oat')
-        expected_price = 4.50 + 0.50
+        expected_price = 4.50 * 1.3 + 0.50
         print(f"Calculated price with oat milk: {oat_milk_surcharge}, Expected: {expected_price}")
         self.assertEqual(oat_milk_surcharge, expected_price)
 
@@ -43,9 +48,9 @@ class TestCoffeeShop(unittest.TestCase):
 
     def test_order_total_with_multiple_items(self):
         """Test Order calculates total correctly."""
-        multiple_items_order = int(self.latte.calculate_drink_price('small'))  # $4.50 * 1.3
+        multiple_items_order = int(self.latte.calculate_drink_price('medium'))  # $4.50 * 1.3
         multiple_items_order = int(self.latte.calculate_milk_price('Oat'))  # +$0.50
-        expected_value = int(4.50 + 0.5)
+        expected_value = int(4.50 * 1.3 + 0.5)
         print(f"Calculated order total: {multiple_items_order}, Expected: {expected_value}")
         self.assertEqual(multiple_items_order, expected_value)
 
