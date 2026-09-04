@@ -1,15 +1,18 @@
-from coffee_shop_exceptions import InvalidCustomizationError, InsufficientPointsError
+from coffee_shop_exceptions import InvalidItemError, InvalidCustomizationError, InsufficientPointsError
 
 class MenuItem:
     SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
     DRINK_TYPES = {'Latte': 4.50, 'Cappuccino': 4.25, 'Espresso': 3.50, 'Americano': 3.75, 'Mocha': 5.00}
+    MILK_TYPES = {'Whole': 0.0, 'Skim': 0.0, 'Oat': 0.50, 'Almond': 0.80}
 
-    def __init__(self, name, base_price, available_sizes):
+    def __init__(self, name, base_price, available_sizes, available_milk_types):
         self.name = name
         self.base_price = base_price
         self.available_sizes = available_sizes
+        self.available_milk_types = available_milk_types
+        self.new_price = 0
 
-    def calculate_price(self, size):
+    def calculate_drink_price(self, size):
         """Calculate price based on size.
 
         Args:
@@ -26,8 +29,31 @@ class MenuItem:
                 f"Size '{size}' not available for {self.name}. "
                 f"Available: {', '.join(self.available_sizes)}"
             )
+        self.new_price = self.base_price * self.SIZE_MULTIPLIERS[size]
+        return self.new_price
 
-        return self.base_price * self.SIZE_MULTIPLIERS[size]
+
+
+    def calculate_milk_price(self, milk_type):
+        """Calculate price based on milk type.
+
+        Args:
+            milk_type: Type of milk (Whole, Skim, Oat, Almond)
+
+        Returns:
+            Price as float
+
+        Raises:
+            InvalidCustomizationError: If milk type not available
+        """
+        if milk_type not in self.available_milk_types:
+            raise InvalidCustomizationError(
+                f"Milk type '{milk_type}' not available for {self.name}. "
+                f"Available: {', '.join(self.available_milk_types)}"
+            )
+        
+        return self.new_price + self.MILK_TYPES[milk_type]
+
 
 class Order:
     def __init__(self):
@@ -40,8 +66,23 @@ class Order:
             menu_item: MenuItem instance
             size: Size of the drink
         """
-        price = menu_item.calculate_price(size)
+        price = menu_item.calculate_drink_price(size)
         self.items.append((menu_item.name, size, price))
+
+    def add_milk(self, menu_item, milk_type):
+        """Add milk customization to the last item in the order.
+
+        Args:
+            menu_item: MenuItem instance
+            milk_type: Type of milk
+        """
+        if not self.items:
+            raise ValueError("No items in order to customize.")
+
+        milk_price = menu_item.calculate_milk_price(milk_type)
+        last_item = self.items[-1]
+        updated_price = last_item[2] + milk_price
+        self.items[-1] = (last_item[0], last_item[1], updated_price)
 
     def total(self):
         """Calculate total price of the order."""
@@ -53,12 +94,31 @@ class Customer:
         self.member = member
         self.loyalty_points = 0
 
+class StaffMember(Customer):
+    def __init__(self, name):
+        super().__init__(name, member=True)
+        self.is_staff = True
+        self.loyalty_points = 0
+
+    def apply_discount(self, total):
+        """Apply staff discount to total price.
+
+        Args:
+            total: Total price before discount
+
+        Returns:
+            Total price after discount
+        """
+        return total * (1 - 0.10) 
+
 class LoyaltyProgram:
     POINTS_PER_DOLLAR = 1
     FREE_DRINK_POINTS = 100
 
     def earn_points(self, customer, amount_spent):
         """Earn loyalty points based on amount spent."""
+        if amount_spent < 0:
+            raise InvalidItemError("Amount spent cannot be negative.")
         points_earned = int(amount_spent * self.POINTS_PER_DOLLAR)
         customer.loyalty_points += points_earned
 
@@ -75,18 +135,14 @@ class LoyaltyProgram:
             )
         customer.loyalty_points -= points_to_redeem
 
-# Extending MenuItem (composition approach)
-class Beverage(MenuItem):
-    def __init__(self, name, base_price, available_sizes):
-        super().__init__(name, base_price, available_sizes)
 
 # Usage - no change to Order class needed
-order = Order()
-order.add_item(Beverage("Latte", 4.50, ['small', 'medium', 'large']), 'large')
+# order = Order()
+# order.add_item("Latte", 'large')
 
-# print everything in the order
-for item_name, size, price in order.items:
-    print(f"{item_name.title()} ({size}): ${price:.2f}")
+# # print everything in the order
+# for item_name, size, price in order.items:
+#     print(f"{item_name.title()} ({size}): ${price:.2f}")
 
 # 1. Class Design (30%)
 # Create at least these classes with clear responsibilities:
