@@ -1,7 +1,11 @@
+from coffee_shop_exceptions import InvalidCustomizationError, InsufficientPointsError
+
 class MenuItem:
-    def __init__(self, name, base_price, available_sizes):
+    SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
+    DRINK_TYPES = {'late': 4.50, 'cappuccino': 4.25, 'espresso': 3.50, 'americano': 3.75, 'mocha': 5.00}
+
+    def __init__(self, name, available_sizes):
         self.name = name
-        self.base_price = base_price
         self.available_sizes = available_sizes
 
     def calculate_price(self, size):
@@ -22,12 +26,64 @@ class MenuItem:
                 f"Available: {', '.join(self.available_sizes)}"
             )
 
-        size_multipliers = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
-        return self.base_price * size_multipliers[size]
+        return self.DRINK_TYPES[self.name] * self.SIZE_MULTIPLIERS[size]
 
+class Order:
+    def __init__(self):
+        self.items = []
 
+    def add_item(self, menu_item, size):
+        """Add item to order.
 
+        Args:
+            menu_item: MenuItem instance
+            size: Size of the drink
+        """
+        price = menu_item.calculate_price(size)
+        self.items.append((menu_item.name, size, price))
 
+    def total(self):
+        """Calculate total price of the order."""
+        return sum(price for _, _, price in self.items)
+
+class customer:
+    def __init__(self, name, member=False):
+        self.name = name
+        self.member = member
+        self.loyalty_points = 0
+
+class LoyaltyProgram:
+    POINTS_PER_DOLLAR = 1
+    FREE_DRINK_POINTS = 100
+
+    def earn_points(self, customer, amount_spent):
+        """Earn loyalty points based on amount spent."""
+        points_earned = int(amount_spent * self.POINTS_PER_DOLLAR)
+        customer.loyalty_points += points_earned
+
+    def redeem_points(self, customer, points_to_redeem):
+        """Redeem loyalty points for a free drink.
+
+        Raises:
+            InsufficientPointsError: If customer doesn't have enough points
+        """
+        if customer.loyalty_points < points_to_redeem:
+            raise InsufficientPointsError(
+                f"Customer {customer.name} has insufficient points. "
+                f"Available: {customer.loyalty_points}, Required: {points_to_redeem}"
+            )
+        customer.loyalty_points -= points_to_redeem
+
+# Extending MenuItem (composition approach)
+class Beverage(MenuItem):
+    def __init__(self, name, available_sizes):
+        super().__init__(name, available_sizes)
+
+# Usage - no change to Order class needed
+order = Order()
+order.add_item(Beverage("late", ['small', 'medium', 'large']), 'small')
+
+print(order.total())  # Should print the total price for the order
 # 1. Class Design (30%)
 # Create at least these classes with clear responsibilities:
 # MenuItem - Represents one menu item with pricing
