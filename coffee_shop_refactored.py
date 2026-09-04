@@ -1,4 +1,4 @@
-from coffee_shop_exceptions import InvalidItemError, InvalidCustomizationError, InsufficientPointsError
+from coffee_shop_exceptions import InvalidSpentError, InvalidCustomer, InvalidDiscountError, InvalidItemError, InvalidCustomizationError, InsufficientPointsError
 
 class MenuItem:
     SIZE_MULTIPLIERS = {'small': 1.0, 'medium': 1.3, 'large': 1.6}
@@ -91,6 +91,11 @@ class Order:
         updated_price = last_item[2] + milk_price
         self.items[-1] = (last_item[0], last_item[1], updated_price)
 
+        if menu_item.name not in menu_item.DRINK_TYPES:
+            raise InvalidItemError(
+                f"Menu item '{menu_item.name}' does not exist."
+            )
+
         if milk_type not in self.available_milk_types:
             raise InvalidCustomizationError(
                 f"Milk type '{milk_type}' not available for {self.name}. "
@@ -122,9 +127,11 @@ class StaffMember(Customer):
         Returns:
             Total price after discount
         """
+        if total < 0:
+            raise InvalidDiscountError("Total cannot be negative.")
+
         return total * (1 - 0.10) 
 
-        
 
 class LoyaltyProgram:
     POINTS_PER_DOLLAR = 1
@@ -132,8 +139,12 @@ class LoyaltyProgram:
 
     def earn_points(self, customer, amount_spent):
         """Earn loyalty points based on amount spent."""
+
+        if not isinstance(customer, Customer):
+            raise InvalidCustomer("Invalid customer instance.")
+        
         if amount_spent < 0:
-            raise InvalidItemError("Amount spent cannot be negative.")
+            raise InvalidSpentError("Amount spent cannot be negative.")
         points_earned = int(amount_spent * self.POINTS_PER_DOLLAR)
         customer.loyalty_points += points_earned
 
@@ -158,6 +169,17 @@ class StaffDrink:
 
     def get_receipt(self):
         """Generate receipt for staff drink."""
+        if self.size not in self.menu_item.available_sizes:
+            raise InvalidCustomizationError(
+                f"Size '{self.size}' not available for {self.menu_item.name}. "
+                f"Available: {', '.join(self.menu_item.available_sizes)}"
+            )
+
+        if self.menu_item.name not in self.menu_item.DRINK_TYPES:
+            raise InvalidItemError(
+                f"Menu item '{self.menu_item.name}' does not exist."
+            )
+        
         return f"Staff Drink: {self.menu_item.name.title()} ({self.size}) - Free"
 
 # Usage - no change to Order class needed

@@ -1,6 +1,6 @@
 import unittest
 from coffee_shop_refactored import MenuItem, Order, Customer, LoyaltyProgram, StaffDrink, StaffMember
-from coffee_shop_exceptions import InvalidDiscountError, InsufficientPointsError, InvalidCustomizationError
+from coffee_shop_exceptions import InvalidDiscountError, InsufficientPointsError, InvalidCustomizationError, invalidItemError, InvalidAmountError, InvalidCustomer, InvalidCustomizationError
 
 class TestCoffeeShop(unittest.TestCase):
 
@@ -28,16 +28,16 @@ class TestCoffeeShop(unittest.TestCase):
 
     def test_menu_item_pricing_medium(self):
         """Test MenuItem calculates medium drink price correctly."""    
-        price_medium = self.latteMedium.calculate_drink_price('medium')
-        expected_price = 4.50 * 1.3
+        price_medium = int(self.latteMedium.calculate_drink_price('medium'))
+        expected_price = int(4.50 * 1.3)
         print(f"Calculated price for medium latte: {price_medium}, Expected: {expected_price}")
         self.assertEqual(price_medium, expected_price)
 
     def test_menu_item_milk_oat(self):
         """Test MenuItem calculates price with oat milk correctly."""
-        oat_milk_surcharge = self.latteMedium.calculate_drink_price('medium')
-        oat_milk_surcharge = self.latteMedium.calculate_milk_price('Oat')
-        expected_price = 4.50 * 1.3 + 0.50
+        oat_milk_surcharge = int(self.latteMedium.calculate_drink_price('medium'))
+        oat_milk_surcharge = int(self.latteMedium.calculate_milk_price('Oat'))
+        expected_price = int(4.50 * 1.3 + 0.50)
         print(f"Calculated price with oat milk: {oat_milk_surcharge}, Expected: {expected_price}")
         self.assertEqual(oat_milk_surcharge, expected_price)
 

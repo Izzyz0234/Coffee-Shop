@@ -10,6 +10,8 @@ class InvalidItemError(OrderError):
     """Raised when item doesn't exist on menu."""
     pass
 
+
+
 class InvalidCustomizationError(OrderError):
     """Raised when customization not available."""
     pass
@@ -24,4 +26,12 @@ class InsufficientPointsError(PaymentError):
 
 class InvalidDiscountError(PaymentError):
     """Raised when discount can't be applied."""
+    pass
+
+class InvalidSpentError(PaymentError):
+    """Raised when amount is invalid (e.g., negative)."""
+    pass
+
+class InvalidCustomer(CoffeeShopError):
+    """Raised when customer information is invalid."""
     pass
